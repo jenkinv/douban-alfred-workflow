@@ -8,6 +8,7 @@ type Item struct {
 	Title    string   `xml:"title"`
 	SubTitle string   `xml:"subtitle"`
 	Arg      string   `xml:"arg,attr"`
+	Icon     string   `xml:"icon"`
 }
 
 // Items 为 Alfred 输出格式中的数组

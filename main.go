@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
 
-	"github.com/jenkinv/douban-movie-alfredworkflow/alfred"
-	"github.com/jenkinv/douban-movie-alfredworkflow/douban"
+	"github.com/jenkinv/douban-alfred-workflow/alfred"
+	"github.com/jenkinv/douban-alfred-workflow/douban"
 )
 
 func main() {
@@ -18,11 +19,17 @@ func main() {
 	query = flag.Arg(0)
 
 	var items = &alfred.Items{}
+	var stars = "★★★★★☆☆☆☆☆"
 	for _, entry := range douban.Search(query, querytype, detail) {
 		item := alfred.Item{}
-		item.Title = entry.Title + " " + entry.Rate
+		item.Title = fmt.Sprintf("%s（%s）", entry.Title, entry.Rate)
 		item.SubTitle = entry.Desc
+		if rate, err := strconv.ParseFloat(entry.Rate, 32); err == nil && entry.Desc == "" {
+			var halfRate = int((rate + 0.5) / 2)
+			item.SubTitle = stars[(5-halfRate)*3 : (10-halfRate)*3]
+		}
 		item.Arg = entry.URL
+		item.Icon = entry.Type + ".png"
 		items.AppendItem(item)
 	}
 	//output xml format for alfred
