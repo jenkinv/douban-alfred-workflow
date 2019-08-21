@@ -1,2 +1,2 @@
-# douban-movie-alfredworkflow
-抓取豆瓣电影信息的alfred插件
+# douban-alfred-workflow
+抓取豆瓣电影\音乐\图书信息的alfred workflow插件
