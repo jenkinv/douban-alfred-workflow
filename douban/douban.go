@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"regexp"
 )
@@ -27,7 +28,14 @@ type Detail struct {
 // Search 搜索豆瓣数据
 func Search(keyword string, subjecttype string, fetchDetail bool) []SearchResult {
 	url := fmt.Sprintf("https://m.douban.com/j/search/?q=%s&t=%s&p=0", keyword, subjecttype)
-	resp, err := http.Get(url)
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("network err:", err)
 		return nil
@@ -38,7 +46,8 @@ func Search(keyword string, subjecttype string, fetchDetail bool) []SearchResult
 	doubanResults := make([]SearchResult, 0)
 	err = json.Unmarshal(buff, &respJSON)
 	if err != nil {
-		fmt.Println("json Unmarshal error,", err)
+		fmt.Println("json Unmarshal error:", err)
+		return nil
 	}
 	respHTML := respJSON["html"].(string)
 
