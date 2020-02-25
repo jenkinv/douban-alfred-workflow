@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 )
@@ -28,14 +27,7 @@ type Detail struct {
 // Search 搜索豆瓣数据
 func Search(keyword string, subjecttype string, fetchDetail bool) []SearchResult {
 	url := fmt.Sprintf("https://m.douban.com/j/search/?q=%s&t=%s&p=0", keyword, subjecttype)
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	req.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
-	resp, err := client.Do(req)
+	resp, err := fetchHttpContent(url)
 	if err != nil {
 		fmt.Println("network err:", err)
 		return nil
@@ -84,13 +76,18 @@ func fetchDetailForList(doubanResults []SearchResult) {
 
 func fetchDetail(detailURL string, detailChan chan Detail) {
 	detail := Detail{URL: detailURL}
-	resp, err := http.Get(detailURL)
+	resp, err := fetchHttpContent(detailURL)
 	if err != nil {
 		fmt.Println("获取详情页网络连接失败：", detailURL)
 		detailChan <- detail
 		return
 	}
 	buff, _ := ioutil.ReadAll(resp.Body)
+	if len(buff) == 0 {
+		fmt.Println("获取详情页内容为空：", detailURL)
+		detailChan <- detail
+		return
+	}
 	defer resp.Body.Close()
 	body := string(buff)
 
@@ -102,4 +99,15 @@ func fetchDetail(detailURL string, detailChan chan Detail) {
 	}
 	detail.Desc = results[1]
 	detailChan <- detail
+}
+
+func fetchHttpContent(url string) (*http.Response, error) {
+	client := &http.Client{}
+	//提交请求
+	request, _ := http.NewRequest("GET", url, nil)
+
+	//增加header选项
+	request.Header.Set("User-Agent", "Golang_Spider_Bot/3.0")
+	//处理返回结果
+	return client.Do(request)
 }

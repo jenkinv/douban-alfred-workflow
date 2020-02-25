@@ -27,3 +27,7 @@ func (items *Items) ToXML() string {
 	xmlBytes, _ := xml.MarshalIndent(items, "", "	")
 	return string(xmlBytes)
 }
+
+func (items *Items) Length() int {
+	return len(items.Items)
+}

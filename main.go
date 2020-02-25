@@ -32,6 +32,14 @@ func main() {
 		item.Icon = entry.Type + ".png"
 		items.AppendItem(item)
 	}
+	if items.Length() == 0 {
+		items.AppendItem(alfred.Item{
+			Title:    "没有搜索到结果",
+			SubTitle: "有可能是爬虫不稳定，请联系作者github",
+			Arg:      "",
+			Icon:     "",
+		})
+	}
 	//output xml format for alfred
 	fmt.Println(items.ToXML())
 	return
